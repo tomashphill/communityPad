@@ -6,11 +6,11 @@ import random
 import eventlet
 import sqlite3
 
-eventlet.monkey_patch()
+# eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_000'
-socketio = SocketIO(app)
+socketio = SocketIO(app, always_connect=True)
 
 ROOT = Path(app.root_path)
 DB = ROOT / 'model' / 'grid.db'
@@ -82,4 +82,4 @@ def create_table():
 
 if __name__ == '__main__':
     # create_table()
-    socketio.run(app, debug=True)
+    socketio.run(app)
