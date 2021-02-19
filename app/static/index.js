@@ -1,10 +1,10 @@
 const grid = document.getElementById('grid');
-console.log(io)
+var cells;
 var socket;
 
 (() => {
-    grid.style.height = window.innerHeight + 'px';
-    grid.style.width = window.innerWidth + 'px';
+    grid.style.height = window.innerHeight - 60 + 'px';
+    grid.style.width = window.innerWidth - 40 + 'px';
 })();
 
 // range :: int -> [int]
@@ -18,35 +18,39 @@ const styleCell = (c, left, width, top, height) => {
     c.style.top = top + '%';
     c.style.height = height + '%';
     c.setAttribute('type', 'text');
-    c.setAttribute('maxlength', '1');
+    // c.setAttribute('maxlength', '1');
 };
 
 // spillOver :: HTMLElement -> ()
-const addSpillOver = (el) => {
-    el.onkeyup = function(e) {
-        socket.emit('edit_cell', {
-            X: e.target.viewX,
-            Y: e.target.viewY,
-            value: e.target.value
-        });
-        const maxLength = 1;
-        let myLength = e.target.value.length;
-        if (myLength >= maxLength) {
-            let next = e.target;
-            while (next = next.nextElementSibling) {
-                if (next == null) 
-                    break;
-                next.focus();
-                break;
-            }
+const spillOver = function(e) {
+    let c = e.data;
+
+    if (!e.data) {
+        c = ' '
+        let prev = e.target.previousElementSibling;
+        if (prev != null) {
+            prev.focus();
+        }
+    } else {
+        let next = e.target.nextElementSibling;
+        if (next != null) {
+            next.focus();
         }
     }
+
+    e.target.value = c;
+    socket.emit('edit_cell', {
+        X: e.target.viewX,
+        Y: e.target.viewY,
+        value: c
+    });
 }
 
+// onload :: window ~> ()
 window.onload = () => {
     // window width/height in pixels
-    const wPix = window.innerWidth;
-    const hPix = window.innerHeight;
+    const wPix = grid.clientWidth;
+    const hPix = grid.clientHeight;
     // cell width and height in pixels
     const cellLPix = 25;
     // cell width/height in percent
@@ -65,7 +69,7 @@ window.onload = () => {
             styleCell(cell, left, cellWPrc, top, cellHPrc);
             cell.viewX = nW;
             cell.viewY = nH;
-            addSpillOver(cell);
+            cell.addEventListener('input', spillOver);
 
             grid.appendChild(cell);
             return cell;
@@ -75,6 +79,20 @@ window.onload = () => {
     socket = io();
 
     socket.on('connect', () => {
-        socket.emit('initialize', 'Connected!');
+        socket.emit('initialize', {
+            n_cells_w: nCellsW,
+            n_cells_h: nCellsH
+        });
+    });
+
+    socket.on('update_grid', (data) => {
+        Object.keys(data).forEach((x, i) => {
+            Object.keys(data[x]).forEach((y, j) => {
+                cells[j][i].value = data[x][y]
+            });
+        });
+    });
+    socket.on('update_cell', (data) => {
+        cells[data['Y']][data['X']].value = data['value']
     });
 };
