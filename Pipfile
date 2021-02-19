@@ -7,7 +7,7 @@ name = "pypi"
 flask = "*"
 flask-socketio = "*"
 gunicorn = "*"
-gevent = "*"
+eventlet = "*"
 
 [dev-packages]
 

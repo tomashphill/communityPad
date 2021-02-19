@@ -3,8 +3,10 @@ from flask_socketio import SocketIO, emit
 from collections import defaultdict
 from pathlib import Path
 import random
+import eventlet
 import sqlite3
 
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_000'
@@ -80,4 +82,4 @@ def create_table():
 
 if __name__ == '__main__':
     # create_table()
-    socketio.run(app)
+    socketio.run(app, debug=True)
