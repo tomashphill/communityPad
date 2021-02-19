@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#grid {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#grid > input {
+    outline: none;
+    border: gray solid 1px;
+    text-align: center;
+    padding: 0;
+}
